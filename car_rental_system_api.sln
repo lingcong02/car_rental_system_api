@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "car_rental_system_api", "car_rental_system_api\car_rental_system_api.csproj", "{2099D7FC-1556-443B-AD6E-2270005B618E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2099D7FC-1556-443B-AD6E-2270005B618E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2099D7FC-1556-443B-AD6E-2270005B618E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2099D7FC-1556-443B-AD6E-2270005B618E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2099D7FC-1556-443B-AD6E-2270005B618E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {53A232E5-E87A-49FA-BA88-5835F9E07BE2}
+	EndGlobalSection
+EndGlobal
