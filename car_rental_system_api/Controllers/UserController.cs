@@ -49,6 +49,34 @@ namespace car_rental_system_api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("GetByJwt")]
+        public async Task<IActionResult> GetByJwt()
+        {
+            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
+            }
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var userId = tokenHandler.ReadJwtToken(jwtCookie).Subject;
+
+            try
+            {
+                var query = await _context.Users
+                                  .Where(e => e.UserId == Convert.ToInt32(userId) && e.IsDeleted == false)
+                                  .AsNoTracking()
+                                  .FirstOrDefaultAsync();
+                var response = _mapper.Map<UserViewModel>(query);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+
         [HttpPut("Insert")]
         public async Task<IActionResult> Insert([FromBody] UserViewModel userViewModel)
         {
@@ -72,14 +100,14 @@ namespace car_rental_system_api.Controllers
             var jwtCookie = Request.Cookies["jwt"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
-                return Unauthorized("token expired");
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
             }
             var tokenHandler = new JwtSecurityTokenHandler();
             var userId = tokenHandler.ReadJwtToken(jwtCookie).Subject;
 
             if (string.IsNullOrEmpty(jwtCookie))
             {
-                return Unauthorized("JWT Cookie is missing");
+                return Unauthorized(new { Message = "JWT Cookie is missing" });
             }
             if (!Request.Cookies.TryGetValue("jwt", out var token))
             {

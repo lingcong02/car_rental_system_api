@@ -143,7 +143,7 @@ namespace car_rental_system_api.Database
                     .HasConstraintName("FK_Booking_User");
 
                 entity.HasOne(e => e.Vehicle)
-                    .WithMany()
+                    .WithMany(e => e.Bookings)
                     .HasForeignKey(e => e.FkVehicleId)
                     .OnDelete(DeleteBehavior.Cascade) // Adjust as per business logic
                     .HasConstraintName("FK_Booking_Vehicle");
