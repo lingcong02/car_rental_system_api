@@ -69,7 +69,11 @@ namespace car_rental_system_api.Controllers
         [HttpPatch("Update")]
         public async Task<IActionResult> Update([FromBody] UserViewModel userViewModel)
         {
-            var jwtCookie = Request.Cookies["jwt"];
+            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized("token expired");
+            }
             var tokenHandler = new JwtSecurityTokenHandler();
             var userId = tokenHandler.ReadJwtToken(jwtCookie).Subject;
 

@@ -28,24 +28,6 @@ namespace car_rental_system_api.Controllers
         {
             try
             {
-                //var query = await _context.Vehicles
-                //                  .Include(v => v.Images) 
-                //                  .Select(v => new VehicleViewModel
-                //                  {
-                //                      Id = v.VehicleId,
-                //                      Name = v.Name,
-                //                      Model = v.FkVehicleModelId,
-                //                      PlatNo = v.PlatNo,
-                //                      Desc = v.Desc,
-                //                      Price = v.Price,
-                //                      Image = v.Images.Select(img => new ImageViewModel
-                //                      {
-                //                          Id = img.ImageId,
-                //                          Path = img.Path
-                //                      }).ToList()
-                //                  })
-                //                  .ToListAsync();
-
                 var query = await _context.Vehicles
                                   .Where(e => e.IsDeleted == false)
                                   .Include(v => v.Images)
@@ -67,6 +49,40 @@ namespace car_rental_system_api.Controllers
 
 
                 var response = _mapper.Map<List<VehicleViewModel>>(query);
+
+                return Ok(query);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+
+        [HttpPost("GetById")]
+        public async Task<IActionResult> GetById([FromBody] int id)
+        {
+            try
+            {
+                var query = await _context.Vehicles
+                                  .Where(e => e.VehicleId == id && e.IsDeleted == false)
+                                  .Include(v => v.Images)
+                                  .Select(v => new VehicleViewModel
+                                  {
+                                      Id = v.VehicleId,
+                                      Name = v.Name,
+                                      Model = v.FkVehicleModelId,
+                                      PlatNo = v.PlatNo,
+                                      Desc = v.Desc,
+                                      Price = v.Price,
+                                      Image = v.Images.Select(i => new ImageViewModel
+                                      {
+                                          Path = i.Path ?? string.Empty,
+                                      }).ToList()
+                                  })
+                                  .AsNoTracking()
+                                  .FirstOrDefaultAsync();
+
+                var response = _mapper.Map<VehicleViewModel>(query);
 
                 return Ok(query);
             }

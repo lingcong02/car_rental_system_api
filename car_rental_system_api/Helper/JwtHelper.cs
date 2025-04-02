@@ -32,9 +32,31 @@ namespace car_rental_system_api.Helper
             return tokenHandler.WriteToken(token);
         }
 
-        public static string? GetUserIdFromToken(HttpContext httpContext)
+        public static bool IsTokenValid(string token)
         {
-            return httpContext.User.FindFirst("UserId")?.Value; // ✅ Extract UserId from claims
+            if (string.IsNullOrEmpty(token))
+            {
+                return false;
+            }
+            var jwtHandler = new JwtSecurityTokenHandler();
+
+            // Parse the JWT token
+            var jsonToken = jwtHandler.ReadToken(token) as JwtSecurityToken;
+
+            if (jsonToken == null)
+                throw new Exception("Invalid token format.");
+
+            // Get the expiration claim
+            var expClaim = jsonToken?.Claims?.FirstOrDefault(c => c.Type == "exp");
+
+            if (expClaim == null)
+                throw new Exception("Token does not have an expiration claim.");
+
+            // Convert the expiration to a DateTime
+            var expirationDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value)).DateTime;
+
+            // Check if the token is expired
+            return expirationDate > DateTime.UtcNow;
         }
     }
 }
