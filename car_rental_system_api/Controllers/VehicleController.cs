@@ -82,8 +82,31 @@ namespace car_rental_system_api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("Insert")]
         public async Task<IActionResult> Insert([FromBody] VehicleViewModel vehicleViewModel)
+        {
+            var jwtCookie = Request.Cookies["jwt_user"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
+            }
+
+            try
+            {
+                var query = _mapper.Map<Vehicle>(vehicleViewModel);
+                _context.Vehicles.Add(query);
+                await _context.SaveChangesAsync();
+                return Ok(new { Message = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+
+        [HttpPatch("Update")]
+        public async Task<IActionResult> Update([FromBody] VehicleViewModel vehicleViewModel)
         {
             try
             {
@@ -97,7 +120,7 @@ namespace car_rental_system_api.Controllers
                 return BadRequest(new { Message = ex.ToString() });
             }
         }
-            
+
         [Authorize]
         [HttpPost("Deactive")]
         public async Task<IActionResult> Deactive([FromBody]int id)
