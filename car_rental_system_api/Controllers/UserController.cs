@@ -20,12 +20,14 @@ namespace car_rental_system_api.Controllers
     {
         private readonly ModelContext _context;
         private readonly ILogger<UserController> _logger;
-        private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
+        private readonly IMapper _mapper;        
 
-        public UserController(ModelContext context, ILogger<UserController> logger, IMapper mapper)
+        public UserController(ModelContext context, ILogger<UserController> logger, IConfiguration config, IMapper mapper)
         {
             _context = context;
             _logger = logger;
+            _config = config;
             _mapper = mapper;
         }
 
@@ -53,7 +55,7 @@ namespace car_rental_system_api.Controllers
         [HttpGet("GetByJwt")]
         public async Task<IActionResult> GetByJwt()
         {
-            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            var jwtCookie = Request.Cookies["jwt_user"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
                 return Unauthorized(new { Message = "Token Expired, Please Login" });
@@ -97,7 +99,7 @@ namespace car_rental_system_api.Controllers
         [HttpPatch("Update")]
         public async Task<IActionResult> Update([FromBody] UserViewModel userViewModel)
         {
-            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            var jwtCookie = Request.Cookies["jwt_user"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
                 return Unauthorized(new { Message = "Token Expired, Please Login" });
@@ -109,7 +111,7 @@ namespace car_rental_system_api.Controllers
             {
                 return Unauthorized(new { Message = "JWT Cookie is missing" });
             }
-            if (!Request.Cookies.TryGetValue("jwt", out var token))
+            if (!Request.Cookies.TryGetValue("jwt_user", out var token))
             {
                 return Unauthorized(new { Message = "No Token Found, Please Login" });
             }
@@ -127,6 +129,61 @@ namespace car_rental_system_api.Controllers
                 return Ok(userId);
             }
             return Ok(userId);
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginViewModel request)
+        {
+            try
+            {
+                var query = await _context.Users
+                                  .Where(e => e.Email == request.Email)
+                                  .AsNoTracking()
+                                  .FirstOrDefaultAsync();
+
+                if (query == null)
+                {
+                    return Unauthorized(new { Message = "Invalid Email or Password" });
+                }
+
+                var verifyPassword = CryptoHelper.VerifyPassword(request.Password, query.Hash, query.Guid);
+
+                if (verifyPassword)
+                {
+                    var token = JwtHelper.GenerateJwtToken(query.UserId, query.Name, _config);
+                    Response.Cookies.Append("jwt_user", token, new CookieOptions
+                    {
+                        HttpOnly = true,  // Prevents JavaScript access
+                        Secure = true,    // Requires HTTPS
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddMinutes(60)
+                    });
+                    return Ok(new { Message = 200 });
+                }
+                else
+                {
+                    return Unauthorized(new { Message = "Invalid Password" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.ToString());
+            }
+        }
+
+        [HttpGet("Logout")]
+        public IActionResult Logout()
+        {
+            var token = Request.Cookies["jwt_user"] ?? "";
+            Response.Cookies.Append("jwt_user", token, new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(-1),
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
+            return Ok(new { Message = "200" });
         }
     }
 }

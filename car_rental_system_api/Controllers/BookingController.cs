@@ -6,6 +6,7 @@ using car_rental_system_api.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace car_rental_system_api.Controllers
@@ -26,12 +27,42 @@ namespace car_rental_system_api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPut("Insert")]
-        public async Task<IActionResult> Insert([FromBody] BookingViewModel bookingViewModel)
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
         {
             try
             {
-                var jwtCookie = Request.Cookies["jwt"] ?? "";
+                var jwtCookie = Request.Cookies["jwt_admin"] ?? "";
+                if (!JwtHelper.IsTokenValid(jwtCookie))
+                {
+                    return Unauthorized(new { Message = "Token Expired, Please Login" });
+                }
+
+                var query = await _context.Bookings
+                                  .Where(e => e.IsDeleted == false)
+                                  .Include(v => v.Vehicle)
+                                  .ThenInclude(v => v.Images)
+                                  .AsNoTracking()
+                                  .ToListAsync();
+
+
+                var response = _mapper.Map<List<BookingResponseViewModel>>(query);
+
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+
+        [HttpPut("Insert")]
+        public async Task<IActionResult> Insert([FromBody] BookingRequestViewModel bookingViewModel)
+        {
+            try
+            {
+                var jwtCookie = Request.Cookies["jwt_user"] ?? "";
                 if (!JwtHelper.IsTokenValid(jwtCookie))
                 {
                     return Unauthorized(new { Message = "Token Expired, Please Login" });

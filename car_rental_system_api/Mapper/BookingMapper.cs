@@ -8,9 +8,8 @@ namespace car_rental_system_api.Mapper
     {
         public BookingMapper()
         {
-            CreateMap<Booking, BookingViewModel>()
-                .ForMember(dest => dest.BookingNo, opt => opt.MapFrom(src => src.BookingNo))
-                .ForMember(dest => dest.VehicleId, opt => opt.MapFrom(src => src.FkVehicleId))
+            CreateMap<Booking, BookingResponseViewModel>()
+                .ForMember(dest => dest.BookingNo, opt => opt.MapFrom(src => src.BookingNo))                
                 .ForMember(dest => dest.CustName, opt => opt.MapFrom(src => src.CustomerName))
                 .ForMember(dest => dest.CustEmail, opt => opt.MapFrom(src => src.CustomerEmail))
                 .ForMember(dest => dest.CustPhone, opt => opt.MapFrom(src => src.CustomerPhone))
@@ -18,7 +17,7 @@ namespace car_rental_system_api.Mapper
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
                 .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalPrice));
 
-            CreateMap<BookingViewModel, Booking>()
+            CreateMap<BookingRequestViewModel, Booking>()
                 .ForMember(dest => dest.BookingId, opt => opt.Ignore())
                 .ForMember(dest => dest.BookingNo, opt => opt.MapFrom(src => src.BookingNo))
                 .ForMember(dest => dest.FkVehicleId, opt => opt.MapFrom(src => src.VehicleId))

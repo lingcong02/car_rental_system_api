@@ -7,8 +7,9 @@ namespace car_rental_system_api.Database.Entity
     {
         public int AdminId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public int Role { get; set; }
-        public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
+        public byte[] Hash { get; set; } = Array.Empty<byte>();
         public Guid Guid { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreateDate { get; set; }

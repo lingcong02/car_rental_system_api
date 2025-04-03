@@ -46,7 +46,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = context =>
             {
                 // Read the JWT token from the cookie
-                var token = context.Request.Cookies["jwt"];
+                string? token = null;
+                if (context.HttpContext.Request.Path.StartsWithSegments("/api/Admin"))
+                {
+                    token = context.Request.Cookies["jwt_admin"]; // Use admin token
+                }
+                else
+                {
+                    token = context.Request.Cookies["jwt_user"];  // Use user token
+                }
                 if (!string.IsNullOrEmpty(token))
                 {
                     context.Token = token;

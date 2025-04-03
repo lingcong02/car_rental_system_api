@@ -65,10 +65,13 @@ namespace car_rental_system_api.Database
                     .IsUnicode(false)
                     .IsRequired();
 
+                entity.Property(e => e.AdminId)
+                    .IsRequired();
+
                 entity.Property(e => e.Role)
                     .IsRequired();
 
-                entity.Property(e => e.PasswordHash)
+                entity.Property(e => e.Hash)
                     .IsRequired();
 
                 entity.Property(e => e.Guid)

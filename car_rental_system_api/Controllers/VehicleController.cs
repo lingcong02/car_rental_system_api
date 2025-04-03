@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using car_rental_system_api.Database;
 using car_rental_system_api.Database.Entity;
+using car_rental_system_api.Helper;
 using car_rental_system_api.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,26 +33,14 @@ namespace car_rental_system_api.Controllers
                 var query = await _context.Vehicles
                                   .Where(e => e.IsDeleted == false)
                                   .Include(v => v.Images)
-                                  .Select(v => new VehicleViewModel
-                                  {
-                                      Id = v.VehicleId,
-                                      Name = v.Name,
-                                      Model = v.FkVehicleModelId,
-                                      PlatNo = v.PlatNo,
-                                      Desc = v.Desc,
-                                      Price = v.Price,
-                                      Image = v.Images.Select(i => new ImageViewModel
-                                      {
-                                          Path = i.Path ?? string.Empty,
-                                      }).ToList()
-                                  })
+                                  
                                   .AsNoTracking()
                                   .ToListAsync();
 
 
                 var response = _mapper.Map<List<VehicleViewModel>>(query);
 
-                return Ok(query);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -100,6 +90,38 @@ namespace car_rental_system_api.Controllers
                 var query = _mapper.Map<Vehicle>(vehicleViewModel);
                 _context.Vehicles.Add(query);
                 await _context.SaveChangesAsync();
+                return Ok(new { Message = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+            
+        [Authorize]
+        [HttpPost("Deactive")]
+        public async Task<IActionResult> Deactive([FromBody]int id)
+        {
+            var jwtCookie = Request.Cookies["jwt_admin"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
+            }
+            try
+            {
+                var query = await _context.Vehicles
+                                  .Where(e => e.VehicleId == id && !e.IsDeleted)
+                                  .AsNoTracking()
+                                  .FirstOrDefaultAsync();
+
+                if(query == null)
+                {
+                    return BadRequest(new { Message = "No Vehicle Found" });
+                }
+                query.IsDeleted = true;
+                _context.Vehicles.Update(query);
+                await _context.SaveChangesAsync();
+
                 return Ok(new { Message = 200 });
             }
             catch (Exception ex)
