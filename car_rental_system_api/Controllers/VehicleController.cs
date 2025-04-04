@@ -100,17 +100,17 @@ namespace car_rental_system_api.Controllers
 
                 if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
                 {
-                    foreach (var imagePath in vehicleViewModel.Image)
+                    if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
                     {
-                        var image = new ImageRequestViewModel
+
+                        var newImages = vehicleViewModel.Image.Select(imagePath => new ImageRequestViewModel
                         {
                             Path = imagePath.Path,
-                            vehicleId = query.VehicleId
-                        };
+                            vehicleId = vehicleViewModel.Id,
+                        }).ToList();
 
-                        var mappedImage = _mapper.Map<Image>(image);
-                        _context.Image.Add(mappedImage);
-                        await _context.SaveChangesAsync();
+                        var mappedImage = _mapper.Map<List<Image>>(newImages);
+                        await _context.Image.AddRangeAsync(mappedImage);
                     }
                 }
                 
@@ -141,7 +141,6 @@ namespace car_rental_system_api.Controllers
                 if (recordUpdate != null)
                 {
                     _mapper.Map(vehicleViewModel, recordUpdate);
-                    _context.Vehicles.Update(recordUpdate);
                 }
 
                 var imageUpdate = await _context.Image
@@ -152,24 +151,22 @@ namespace car_rental_system_api.Controllers
                 {
                     _context.Image.RemoveRange(imageUpdate);
 
-                    if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
-                    {
-                        foreach (var imagePath in vehicleViewModel.Image)
-                        {
-                            var image = new ImageRequestViewModel
-                            {
-                                Path = imagePath.Path,
-                                vehicleId = vehicleViewModel.Id
-                            };
+                }
+                if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
+                {
 
-                            var mappedImage = _mapper.Map<Image>(image);
-                            _context.Image.Add(mappedImage);
-                            await _context.SaveChangesAsync();
-                        }
-                    }
+                    var newImages = vehicleViewModel.Image.Select(imagePath => new ImageRequestViewModel
+                    {
+                        Path = imagePath.Path,
+                        vehicleId = vehicleViewModel.Id,
+                    }).ToList();
+
+                    var mappedImage = _mapper.Map<List<Image>>(newImages);
+                    await _context.Image.AddRangeAsync(mappedImage);
                 }
 
                 await _context.SaveChangesAsync();
+
                 return Ok(new { Message = 200 });
             }
             catch (Exception ex)

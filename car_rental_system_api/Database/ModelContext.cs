@@ -29,10 +29,10 @@ namespace car_rental_system_api.Database
                 entity.HasKey(e => e.ImageId).HasName("PK_Image");
 
                 entity.Property(e => e.ImageId)
-                    .ValueGeneratedNever(); // Assuming identity is not used
+                    .UseIdentityColumn(); // Assuming identity is not used
 
                 entity.Property(e => e.Path)
-                    .HasMaxLength(50)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.IsDeleted)
@@ -58,7 +58,7 @@ namespace car_rental_system_api.Database
                 entity.HasKey(e => e.AdminId).HasName("PK_Admin");
 
                 entity.Property(e => e.AdminId)
-                    .ValueGeneratedNever(); // Assuming identity is not used
+                    .UseIdentityColumn(); // Assuming identity is not used
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
