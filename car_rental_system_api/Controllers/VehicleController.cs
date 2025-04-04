@@ -86,7 +86,7 @@ namespace car_rental_system_api.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] VehicleViewModel vehicleViewModel)
         {
-            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            var jwtCookie = Request.Cookies["jwt_admin"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
                 return Unauthorized(new { Message = "Token Expired, Please Login" });
@@ -110,9 +110,10 @@ namespace car_rental_system_api.Controllers
 
                         var mappedImage = _mapper.Map<Image>(image);
                         _context.Image.Add(mappedImage);
+                        await _context.SaveChangesAsync();
                     }
                 }
-                await _context.SaveChangesAsync();
+                
                 return Ok(new { Message = 200 });
             }
             catch (Exception ex)
@@ -125,7 +126,7 @@ namespace car_rental_system_api.Controllers
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] VehicleViewModel vehicleViewModel)
         {
-            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            var jwtCookie = Request.Cookies["jwt_admin"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
                 return Unauthorized(new { Message = "Token Expired, Please Login" });
@@ -163,6 +164,7 @@ namespace car_rental_system_api.Controllers
 
                             var mappedImage = _mapper.Map<Image>(image);
                             _context.Image.Add(mappedImage);
+                            await _context.SaveChangesAsync();
                         }
                     }
                 }

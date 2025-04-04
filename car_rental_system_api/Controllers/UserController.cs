@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
@@ -73,7 +74,7 @@ namespace car_rental_system_api.Controllers
             }
             var tokenHandler = new JwtSecurityTokenHandler();
             var userId = tokenHandler.ReadJwtToken(jwtCookie).Subject;
-
+            
             try
             {
                 var query = await _context.Users
@@ -91,7 +92,7 @@ namespace car_rental_system_api.Controllers
         }
 
         [Authorize]
-        [HttpPut("Insert")]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] UserViewModel userViewModel)
         {
             try

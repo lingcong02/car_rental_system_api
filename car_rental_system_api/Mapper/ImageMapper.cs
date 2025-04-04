@@ -15,6 +15,7 @@ namespace car_rental_system_api.Mapper
                 .ForMember(dest => dest.Path, opt => opt.MapFrom(src => src.Path));
 
             CreateMap<ImageRequestViewModel, Image>()
+                .ForMember(dest => dest.ImageId, opt => opt.Ignore())
                 .ForMember(dest => dest.FkVehicleId, opt => opt.MapFrom(src => src.vehicleId))
                 .ForMember(dest => dest.Path, opt => opt.MapFrom(src => src.Path))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(_ => false))

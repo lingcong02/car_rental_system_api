@@ -18,7 +18,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<ModelContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ModelContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -49,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 // Read the JWT token from the cookie
                 string? token = null;
-                if (context.HttpContext.Request.Path.StartsWithSegments("/api/Admin"))
+                if (context.HttpContext.Request.Path.StartsWithSegments("/api/Admin") || context.HttpContext.Request.Path.StartsWithSegments("/api/Booking/GetAll")|| context.HttpContext.Request.Path.StartsWithSegments("/api/Vehicle/Deactive")|| context.HttpContext.Request.Path.StartsWithSegments("/api/Vehicle/Update")|| context.HttpContext.Request.Path.StartsWithSegments("/api/Vehicle/Insert"))
                 {
                     token = context.Request.Cookies["jwt_admin"]; // Use admin token
                 }
