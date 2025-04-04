@@ -27,6 +27,7 @@ namespace car_rental_system_api.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -57,7 +58,8 @@ namespace car_rental_system_api.Controllers
             }
         }
 
-        [HttpPut("Insert")]
+        [Authorize]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] BookingRequestViewModel bookingViewModel)
         {
             try

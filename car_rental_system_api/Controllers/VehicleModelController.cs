@@ -61,7 +61,7 @@ namespace car_rental_system_api.Controllers
             }
         }
 
-        [HttpPut("Insert")]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] VehicleModelViewModel vehicleViewModel)
         {
             try
@@ -77,7 +77,7 @@ namespace car_rental_system_api.Controllers
             }
         }
 
-        [HttpPatch("Update")]
+        [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] VehicleModelViewModel vehicleViewModel)
         {
             try
@@ -104,7 +104,7 @@ namespace car_rental_system_api.Controllers
             }
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             try

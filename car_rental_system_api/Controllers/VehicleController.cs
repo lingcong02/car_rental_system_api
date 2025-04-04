@@ -83,10 +83,10 @@ namespace car_rental_system_api.Controllers
         }
 
         [Authorize]
-        [HttpPut("Insert")]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] VehicleViewModel vehicleViewModel)
         {
-            var jwtCookie = Request.Cookies["jwt_user"] ?? "";
+            var jwtCookie = Request.Cookies["jwt"] ?? "";
             if (!JwtHelper.IsTokenValid(jwtCookie))
             {
                 return Unauthorized(new { Message = "Token Expired, Please Login" });
@@ -97,21 +97,21 @@ namespace car_rental_system_api.Controllers
                 var query = _mapper.Map<Vehicle>(vehicleViewModel);
                 _context.Vehicles.Add(query);
                 await _context.SaveChangesAsync();
-                return Ok(new { Message = 200 });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.ToString() });
-            }
-        }
 
-        [HttpPatch("Update")]
-        public async Task<IActionResult> Update([FromBody] VehicleViewModel vehicleViewModel)
-        {
-            try
-            {
-                var query = _mapper.Map<Vehicle>(vehicleViewModel);
-                _context.Vehicles.Add(query);
+                if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
+                {
+                    foreach (var imagePath in vehicleViewModel.Image)
+                    {
+                        var image = new ImageRequestViewModel
+                        {
+                            Path = imagePath.Path,
+                            vehicleId = query.VehicleId
+                        };
+
+                        var mappedImage = _mapper.Map<Image>(image);
+                        _context.Image.Add(mappedImage);
+                    }
+                }
                 await _context.SaveChangesAsync();
                 return Ok(new { Message = 200 });
             }
@@ -120,6 +120,62 @@ namespace car_rental_system_api.Controllers
                 return BadRequest(new { Message = ex.ToString() });
             }
         }
+
+        [Authorize]
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromBody] VehicleViewModel vehicleViewModel)
+        {
+            var jwtCookie = Request.Cookies["jwt"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
+            }
+            try
+            {
+                var recordUpdate = await _context.Vehicles
+                                         .Where(e => e.VehicleId == vehicleViewModel.Id && !e.IsDeleted)
+                                         .AsNoTracking()
+                                         .FirstOrDefaultAsync();
+
+                if (recordUpdate != null)
+                {
+                    _mapper.Map(vehicleViewModel, recordUpdate);
+                    _context.Vehicles.Update(recordUpdate);
+                }
+
+                var imageUpdate = await _context.Image
+                                        .Where(e => e.FkVehicleId == vehicleViewModel.Id)
+                                        .AsNoTracking()
+                                        .ToListAsync();
+                if (imageUpdate.Any())
+                {
+                    _context.Image.RemoveRange(imageUpdate);
+
+                    if (vehicleViewModel.Image != null && vehicleViewModel.Image.Any())
+                    {
+                        foreach (var imagePath in vehicleViewModel.Image)
+                        {
+                            var image = new ImageRequestViewModel
+                            {
+                                Path = imagePath.Path,
+                                vehicleId = vehicleViewModel.Id
+                            };
+
+                            var mappedImage = _mapper.Map<Image>(image);
+                            _context.Image.Add(mappedImage);
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { Message = 200 });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.ToString() });
+            }
+        }
+
 
         [Authorize]
         [HttpPost("Deactive")]

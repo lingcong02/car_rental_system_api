@@ -16,7 +16,9 @@ namespace car_rental_system_api.Helper
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, "user"),
+                new Claim("uid", userId.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

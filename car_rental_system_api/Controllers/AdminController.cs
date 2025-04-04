@@ -27,7 +27,6 @@ namespace car_rental_system_api.Controllers
             _logger = logger;
         }
 
-        [Authorize]
         [HttpGet("Auth")]
         public IActionResult Auth()
         {
@@ -94,7 +93,7 @@ namespace car_rental_system_api.Controllers
             return Ok(new { Message = "200" });
         }
 
-        [HttpPut("Insert")]
+        [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] AdminViewModel adminViewModel)
         {
             try

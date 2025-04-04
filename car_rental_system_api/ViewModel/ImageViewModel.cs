@@ -4,4 +4,10 @@
     {
         public string Path { get; set; } = string.Empty;
     }
+
+    public class ImageRequestViewModel
+    {
+        public int vehicleId { get; set; }
+        public string Path { get; set; } = string.Empty;
+    }
 }

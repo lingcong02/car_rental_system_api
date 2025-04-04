@@ -31,6 +31,17 @@ namespace car_rental_system_api.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("Auth")]
+        public IActionResult Auth()
+        {
+            var jwtCookie = Request.Cookies["jwt_user"] ?? "";
+            if (!JwtHelper.IsTokenValid(jwtCookie))
+            {
+                return Unauthorized(new { Message = "Token Expired, Please Login" });
+            }
+            return Ok(new { Message = 200 });
+        }
+
         [Authorize]
         [HttpPost("GetById")]
         public async Task<IActionResult> GetById([FromBody] int id)
@@ -79,6 +90,7 @@ namespace car_rental_system_api.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("Insert")]
         public async Task<IActionResult> Insert([FromBody] UserViewModel userViewModel)
         {
