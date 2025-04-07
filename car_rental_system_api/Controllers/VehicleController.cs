@@ -106,11 +106,12 @@ namespace car_rental_system_api.Controllers
                         var newImages = vehicleViewModel.Image.Select(imagePath => new ImageRequestViewModel
                         {
                             Path = imagePath.Path,
-                            vehicleId = vehicleViewModel.Id,
+                            vehicleId = query.VehicleId,
                         }).ToList();
 
                         var mappedImage = _mapper.Map<List<Image>>(newImages);
                         await _context.Image.AddRangeAsync(mappedImage);
+                        await _context.SaveChangesAsync();
                     }
                 }
                 
@@ -141,7 +142,9 @@ namespace car_rental_system_api.Controllers
                 if (recordUpdate != null)
                 {
                     _mapper.Map(vehicleViewModel, recordUpdate);
+                    _context.Vehicles.Update(recordUpdate);
                 }
+
 
                 var imageUpdate = await _context.Image
                                         .Where(e => e.FkVehicleId == vehicleViewModel.Id)
@@ -162,7 +165,7 @@ namespace car_rental_system_api.Controllers
                     }).ToList();
 
                     var mappedImage = _mapper.Map<List<Image>>(newImages);
-                    await _context.Image.AddRangeAsync(mappedImage);
+                    await _context.Image.AddRangeAsync(mappedImage);                   
                 }
 
                 await _context.SaveChangesAsync();
