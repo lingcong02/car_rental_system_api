@@ -1,3 +1,5 @@
+## This is demo purpose project, only including partial function
+
 ## Getting Started
 
 1) Copy database from Database > script.sql
